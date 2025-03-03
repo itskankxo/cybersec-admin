@@ -1,0 +1,26 @@
+#user
+POST http://localhost:3004/user
+Content-Type: application/json
+
+{
+    "username": "demo3",
+    "password": "demo3"
+}
+
+
+#### 
+PUT http://localhost:3004/user/2 HTTP/1.1
+Content-Type: application/json
+
+{   
+    "username": "goog",
+    "password":"yyttt"
+}
+
+####
+DELETE  http://localhost:3004/user/3 HTTP/1.1
+Content-Type: application/json
+
+{
+
+}
