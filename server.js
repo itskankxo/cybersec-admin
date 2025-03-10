@@ -9,6 +9,9 @@ env.config();
 function encodeData(data) {
     return crypto.AES.encrypt(data, process.env.SECRET_KEY).toString();
 }
+function decodeData(data) { 
+    return crypto.AES.decrypt(data, process.env.SECRET_KEY).toString(crypto.enc.Utf8); 
+}
 
 const app = express();
 app.use(bodyParser.json());
@@ -21,11 +24,15 @@ app.get('/', (req, res) => {
 
 app.get('/user', async (req, res) => {
     try {
-        const data = await prisma.$queryRaw`SELECT id, username, cardID FROM user`;
-        res.json({ message: 'okay', data });
+        const data = await prisma.$queryRaw`select id, username, cardID from User`;
+        const finalData = await data.map(record => ({ ...record, cardID: decodeData(record.cardID), username : decodeData(record.username) }));
+        res.json({
+            message: 'okay',
+            data: finalData
+        });    
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal Server Error' }); 
     }
 });
 
@@ -33,8 +40,8 @@ app.post('/user', async (req, res) => {
     try {
         const response = await prisma.user.create({
             data: {
-                username: req.body.username,
-                password: req.body.password,
+                username: encodeData(req.body.username),
+                password: String(encodeData(req.body.password)),
                 cardID: encodeData(req.body.cardID)
             }
         });
